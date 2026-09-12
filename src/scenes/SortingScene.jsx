@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { useTrace } from '../store/useTrace.js';
 
@@ -17,8 +18,11 @@ const MATERIALS = Object.fromEntries(
     role,
     new THREE.MeshStandardMaterial({
       color: new THREE.Color(color),
-      roughness: 0.35,
-      metalness: 0.12,
+      emissive: new THREE.Color(color),
+      // idle bars sit below the bloom threshold; active roles glow.
+      emissiveIntensity: role === 'idle' ? 0.06 : 0.75,
+      roughness: 0.32,
+      metalness: 0.15,
     }),
   ])
 );
@@ -33,7 +37,7 @@ function roleOf(frame, i) {
   return 'idle';
 }
 
-function Bar({ index, value, role, spacing }) {
+function Bar({ index, value, role, spacing, showLabel }) {
   const ref = useRef();
   const targetH = value / 9;
   const lift = role === 'swap' || role === 'compare' ? 0.9 : 0;
@@ -51,14 +55,21 @@ function Bar({ index, value, role, spacing }) {
   });
 
   return (
-    <mesh
-      ref={ref}
-      geometry={GEOMETRY}
-      material={MATERIALS[role]}
-      position-x={index * spacing}
-      castShadow
-      receiveShadow
-    />
+    <group position-x={index * spacing}>
+      <mesh ref={ref} geometry={GEOMETRY} material={MATERIALS[role]} castShadow receiveShadow />
+      {showLabel && (
+        <Text
+          position={[0, -0.45, spacing * 0.4]}
+          rotation={[-Math.PI / 2.6, 0, 0]}
+          fontSize={0.42}
+          color={role === 'idle' ? '#6F81A6' : '#EAF1FF'}
+          anchorX="center"
+          anchorY="middle"
+        >
+          {value}
+        </Text>
+      )}
+    </group>
   );
 }
 
@@ -77,7 +88,7 @@ export default function SortingScene() {
         <meshStandardMaterial color="#151B2C" roughness={1} />
       </mesh>
       {frame.array.map((value, i) => (
-        <Bar key={i} index={i} value={value} role={roleOf(frame, i)} spacing={spacing} />
+        <Bar key={i} index={i} value={value} role={roleOf(frame, i)} spacing={spacing} showLabel={n <= 32} />
       ))}
     </group>
   );

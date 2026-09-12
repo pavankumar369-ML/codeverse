@@ -42,8 +42,18 @@ Drag on the canvas to orbit, scroll to zoom.
 
 ## Status
 
-Done: sorting (bubble, selection, insertion, quick, merge), pathfinding (BFS, DFS,
-Dijkstra, A*), playback scrubbing, live counters, synced code highlighting.
+**13 algorithms across four scenes.**
 
-Next: recursion call-stack tower, tree / linked-list scene, race mode, shareable
-permalinks (FastAPI + SQLite), GIF export.
+| Category | Algorithms | Scene |
+| --- | --- | --- |
+| Sorting | bubble, selection, insertion, quick, merge | orbitable bars, labelled |
+| Pathfinding | BFS, DFS, Dijkstra, A* | instanced grid, wavefront spread |
+| Recursion | fibonacci, memoized fibonacci, Hanoi, permutations | call-stack tower (+ live pegs for Hanoi) |
+| Trees | BST insert, BST search, in-order, level-order | 3D node graph with animated edges |
+
+Also done: playback scrubbing, live counters, code highlighting synced to the current
+frame, per-scene camera framing with an eased transition, bloom and vignette, idle
+auto-orbit, floating caption and colour legend.
+
+Next: race mode (two algorithms, one input, side by side), shareable permalinks
+(FastAPI + SQLite), user-written algorithms via a sandboxed runtime, GIF export.
