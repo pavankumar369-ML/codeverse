@@ -43,11 +43,8 @@ function stateOf(grid, frame, id, visitedSet, frontierSet, pathSet) {
   return grid.weights[id] > 1 ? 'slow' : 'empty';
 }
 
-export default function GridScene() {
+export default function GridScene({ frame }) {
   const grid = useTrace((s) => s.grid);
-  const frames = useTrace((s) => s.frames);
-  const index = useTrace((s) => s.index);
-  const frame = frames[index];
   const meshRef = useRef();
 
   const size = grid.cols * grid.rows;

@@ -2,7 +2,6 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
-import { useTrace } from '../store/useTrace.js';
 
 const STATUS = {
   calling: { color: '#4EA8DE', glow: 0.9 },
@@ -84,8 +83,7 @@ function Pegs({ pegs }) {
   );
 }
 
-export default function StackScene() {
-  const frame = useTrace((s) => s.frames[s.index]);
+export default function StackScene({ frame }) {
   const hasPegs = Boolean(frame.pegs);
   const offsetX = hasPegs ? -7 : 0;
 

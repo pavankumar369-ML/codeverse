@@ -28,7 +28,7 @@ export default function Controls() {
   // Separate selectors on purpose: an object selector would return a fresh
   // object on every snapshot and make React 18 re-render in a loop.
   const index = useTrace((s) => s.index);
-  const total = useTrace((s) => s.frames.length);
+  const total = useTrace((s) => Math.max(s.frames.length, s.framesB ? s.framesB.length : 0));
   const playing = useTrace((s) => s.playing);
   const speed = useTrace((s) => s.speed);
   const { toggle, stepBack, stepForward, restart, seek, setSpeed } = useTrace.getState();

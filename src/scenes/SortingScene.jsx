@@ -2,7 +2,6 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
-import { useTrace } from '../store/useTrace.js';
 
 const PALETTE = {
   idle: '#3E5C89',
@@ -73,10 +72,7 @@ function Bar({ index, value, role, spacing, showLabel }) {
   );
 }
 
-export default function SortingScene() {
-  const frames = useTrace((s) => s.frames);
-  const index = useTrace((s) => s.index);
-  const frame = frames[index];
+export default function SortingScene({ frame }) {
   const n = frame.array.length;
   const spacing = 1.15;
   const width = n * spacing;

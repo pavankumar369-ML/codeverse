@@ -55,5 +55,14 @@ Also done: playback scrubbing, live counters, code highlighting synced to the cu
 frame, per-scene camera framing with an eased transition, bloom and vignette, idle
 auto-orbit, floating caption and colour legend.
 
-Next: race mode (two algorithms, one input, side by side), shareable permalinks
-(FastAPI + SQLite), user-written algorithms via a sandboxed runtime, GIF export.
+**Race mode.** Pick a rival in the same category and both run on the same input in
+two lanes, with a live counter table. Comparable counters only — matching "swaps"
+against "shifts" would be a meaningless comparison, so the table intersects the two
+counter sets.
+
+**Shareable links.** A run is fully determined by (algorithm, input), and both are
+small, so the whole thing is base64'd into the URL hash. No backend, no database,
+and a link keeps working on GitHub Pages. See `src/lib/permalink.js`.
+
+Next: user-written algorithms via a sandboxed runtime, GIF export, linked lists
+and heaps.

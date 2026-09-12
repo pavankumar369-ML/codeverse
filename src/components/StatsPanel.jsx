@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useTrace } from '../store/useTrace.js'
+import { useTrace, frameAt } from '../store/useTrace.js'
 import { algorithms, byId, categories } from '../algorithms/index.js'
+import { currentLink } from '../lib/permalink.js'
 
 function InputControls({ algo }) {
   const size = useTrace((s) => s.array.length)
@@ -51,18 +52,107 @@ function InputControls({ algo }) {
   )
 }
 
+function RaceBoard({ algo }) {
+  const opponentId = useTrace((s) => s.opponentId)
+  const index = useTrace((s) => s.index)
+  const frames = useTrace((s) => s.frames)
+  const framesB = useTrace((s) => s.framesB)
+  const { setOpponent, clearOpponent } = useTrace.getState()
+
+  const rivals = algorithms.filter((a) => a.category === algo.category && a.id !== algo.id)
+
+  if (!opponentId || !framesB) {
+    return (
+      <div className="panel__block">
+        <h3>Race</h3>
+        <p className="hint">Run a second algorithm on the same input, side by side.</p>
+        <div className="picker__items">
+          {rivals.map((a) => (
+            <button key={a.id} className="chip" onClick={() => setOpponent(a.id)}>
+              vs {a.name}
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const rival = byId(opponentId)
+  const a = frameAt(frames, index).counters
+  const b = frameAt(framesB, index).counters
+  // Shared counter names only — comparing "swaps" against "shifts" would lie.
+  const keys = Object.keys(a).filter((k) => k in b)
+  const doneA = index >= frames.length - 1
+  const doneB = index >= framesB.length - 1
+  const winner = frames.length === framesB.length ? null : frames.length < framesB.length ? algo.name : rival.name
+
+  return (
+    <div className="panel__block">
+      <h3>Race</h3>
+      <table className="race">
+        <thead>
+          <tr>
+            <th />
+            <th>{algo.name}</th>
+            <th>{rival.name}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {keys.map((k) => (
+            <tr key={k}>
+              <td>{k.replace(/([A-Z])/g, ' $1')}</td>
+              <td className={`mono ${a[k] < b[k] ? 'lead' : ''}`}>{a[k]}</td>
+              <td className={`mono ${b[k] < a[k] ? 'lead' : ''}`}>{b[k]}</td>
+            </tr>
+          ))}
+          <tr>
+            <td>steps</td>
+            <td className="mono">{frames.length}</td>
+            <td className="mono">{framesB.length}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p className="hint">
+        {doneA && doneB
+          ? winner
+            ? `${winner} finished in fewer steps.`
+            : 'Both finished in the same number of steps.'
+          : doneA
+            ? `${algo.name} is done and waiting.`
+            : doneB
+              ? `${rival.name} is done and waiting.`
+              : 'Both still running.'}
+      </p>
+      <button className="btn btn--wide" onClick={clearOpponent}>
+        End race
+      </button>
+    </div>
+  )
+}
+
 export default function StatsPanel() {
   const algoId = useTrace((s) => s.algoId)
   const index = useTrace((s) => s.index)
-  const frame = useTrace((s) => s.frames[s.index])
-  const total = useTrace((s) => s.frames.length)
+  const frame = useTrace((s) => frameAt(s.frames, s.index))
+  const total = useTrace((s) => Math.max(s.frames.length, s.framesB ? s.framesB.length : 0))
   const buildMs = useTrace((s) => s.buildMs)
   const algo = byId(algoId)
   const [tab, setTab] = useState(algo.category)
+  const [copied, setCopied] = useState(false)
   const { selectAlgo } = useTrace.getState()
 
   const shown = algorithms.filter((a) => a.category === tab)
   const active = categories.find((c) => c.id === tab)
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(currentLink(useTrace.getState()))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    } catch {
+      setCopied(false)
+    }
+  }
 
   return (
     <aside className="panel">
@@ -95,6 +185,8 @@ export default function StatsPanel() {
         <h3>Input</h3>
         <InputControls algo={algo} />
       </div>
+
+      <RaceBoard algo={algo} />
 
       <div className="panel__block">
         <h3>Live counters</h3>
@@ -135,6 +227,11 @@ export default function StatsPanel() {
           </div>
         </dl>
       </div>
+
+      <button className="btn btn--wide" onClick={copyLink}>
+        {copied ? 'Link copied' : 'Copy link to this run'}
+      </button>
+      <p className="hint">The link carries the algorithm and its exact input.</p>
     </aside>
   )
 }

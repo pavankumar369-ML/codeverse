@@ -2,7 +2,6 @@ import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Line } from '@react-three/drei';
 import * as THREE from 'three';
-import { useTrace } from '../store/useTrace.js';
 
 const SPHERE = new THREE.SphereGeometry(0.55, 24, 18);
 
@@ -56,8 +55,7 @@ function Node({ node, tree, role }) {
   );
 }
 
-export default function TreeScene() {
-  const frame = useTrace((s) => s.frames[s.index]);
+export default function TreeScene({ frame }) {
   const tree = frame.tree;
 
   const roles = useMemo(() => {

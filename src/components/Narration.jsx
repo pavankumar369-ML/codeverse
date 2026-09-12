@@ -1,4 +1,4 @@
-import { useTrace } from '../store/useTrace.js'
+import { useTrace, frameAt } from '../store/useTrace.js'
 import { byId } from '../algorithms/index.js'
 
 // Floating caption over the canvas. Keeping it on the scene rather than in the
@@ -31,17 +31,21 @@ const LEGENDS = {
 }
 
 export default function Narration() {
-  const note = useTrace((s) => s.frames[s.index].note)
+  const note = useTrace((s) => frameAt(s.frames, s.index).note)
   const algoId = useTrace((s) => s.algoId)
   const index = useTrace((s) => s.index)
   const cinematic = useTrace((s) => s.cinematic)
   const toggleCinematic = useTrace((s) => s.toggleCinematic)
+  const opponentId = useTrace((s) => s.opponentId)
   const algo = byId(algoId)
 
   return (
     <>
       <div className="hud hud--top">
-        <span className="hud__name">{algo.name}</span>
+        <span className="hud__name">
+          {algo.name}
+          {opponentId ? <em> vs {byId(opponentId).name}</em> : null}
+        </span>
         <button className={`ghost ${cinematic ? 'ghost--on' : ''}`} onClick={toggleCinematic}>
           {cinematic ? 'Auto-orbit on' : 'Auto-orbit off'}
         </button>
